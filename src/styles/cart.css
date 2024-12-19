@@ -1,0 +1,57 @@
+.cart {
+    width: 30px;
+    height: 20px;
+    background-color: #444;
+    position: relative;
+    border-radius: 4px;
+    transition: transform 0.5s ease-in-out;
+}
+
+.cart::before,
+.cart::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    background-color: #222;
+    border-radius: 50%;
+}
+
+
+.cart::before {
+    left: 2px;
+}
+
+.cart::after {
+    right: 2px;
+}
+
+.cart-space {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f5f5f5;
+    border: 1px dashed #ccc;
+    min-height: 30px;
+    position: relative;
+}
+
+.cart {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+
+
+
+
+
+
