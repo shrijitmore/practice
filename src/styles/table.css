@@ -19,3 +19,13 @@
 #data-table tr:hover {
     background-color: #f1f1f1;
 }
+.fade-out {
+    transition: opacity 0.5s ease;
+    opacity: 0; /* Start with opacity 0 for fade-out effect */
+  }
+
+  .slide-out {
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    transform: translateX(100%); /* Move the row out of view to the right */
+    opacity: 0; /* Fade out effect */
+  }

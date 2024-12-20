@@ -13,7 +13,7 @@ function createDataTable(container) {
   // Create a section for the table
   const tableSection = document.createElement('div');
   tableSection.style.height = '231px'; // Set the height for the scrollable area
-  tableSection.style.width = '30%';
+  tableSection.style.width = '43%';
   tableSection.style.overflowY = 'hidden';
   tableSection.style.border = '1px solid #ddd'; // Optional: Add a border for better visibility
   tableSection.style.marginTop = '20px'; // Optional: Add some margin
@@ -44,7 +44,7 @@ function createDataTable(container) {
 
       // Populate table body
       const tbody = document.createElement('tbody');
-      tableBody.forEach(row => {
+      tableBody.forEach((row, index) => {
         if (row.trim()) { // Check if the row is not empty
           const tr = document.createElement('tr');
           const cells = row.split(',');
@@ -63,17 +63,66 @@ function createDataTable(container) {
       // Append the section to the container
       container.appendChild(tableSection);
 
-      // Start removing rows one by one every 2 minutes
-      let currentRowIndex = 0;
-      const interval = setInterval(() => {
+      // Function to start checking and removing rows
+      const startCheckingAndRemovingRows = () => {
         const tbody = table.querySelector('tbody');
-        const rows = tbody.querySelectorAll('tr');
-        if (currentRowIndex < rows.length) {
-          tbody.removeChild(rows[currentRowIndex]); // Remove the current row
-        } else {
-          clearInterval(interval); // Stop the interval when all rows are removed
+        const rows = tbody.querySelectorAll('tr'); // Store rows in a variable
+        let currentRowIndex = 0;
+
+        const interval = setInterval(() => {
+          if (currentRowIndex < rows.length) {
+            const row = rows[currentRowIndex];
+            const actualQtyCell = row.cells[6]; // Assuming Actual qty is in the seventh column (index 6)
+            const plannedQtyCell = row.cells[5]; // Assuming Qty/planned is in the sixth column (index 5)
+
+            // Get the current Actual qty and planned qty
+            let actualQty = parseInt(actualQtyCell.textContent, 10);
+            const plannedQty = parseInt(plannedQtyCell.textContent, 10);
+
+            // Increment Actual qty until it equals Planned qty
+            if (actualQty < plannedQty) {
+              actualQty += 1; // Increment Actual qty by 1
+              actualQtyCell.textContent = actualQty; // Update the cell value
+            }
+
+            // Check if Actual qty equals or exceeds Qty/planned
+            if (actualQty >= plannedQty) {
+              row.classList.add('slide-out'); // Add slide-out class
+
+              // Wait for the transition to complete before removing the row
+              row.addEventListener('transitionend', () => {
+                tbody.removeChild(row); // Remove the current row after slide-out
+              }, { once: true }); // Use { once: true } to ensure the event listener is removed after execution
+
+              // Move to the next row without incrementing currentRowIndex
+              currentRowIndex++; // Move to the next row
+            }
+          } else {
+            clearInterval(interval); // Stop the interval when all rows are checked
+            currentRowIndex = 0; // Reset index to start over if needed
+          }
+        }, 2000); // 2000 milliseconds = 2 seconds
+      };
+
+      // Start checking and removing rows
+      startCheckingAndRemovingRows();
+
+      // Update the first row color to yellow and shift it as new rows are added
+      const updateFirstRowColor = () => {
+        const tbody = table.querySelector('tbody');
+        const firstRow = tbody.querySelector('tr');
+        if (firstRow) {
+          firstRow.style.backgroundColor = 'yellow';
         }
-      }, 1200); // 120000 milliseconds = 2 minutes
+      };
+
+      // Call the function initially
+      updateFirstRowColor();
+
+      // Observe changes in the table body to update the first row color
+      const observer = new MutationObserver(updateFirstRowColor);
+      observer.observe(tbody, { childList: true });
+
     })
     .catch(error => console.error('Error fetching the CSV file:', error));
 }
@@ -109,8 +158,6 @@ function initializeConveyorSystem() {
   // change the color of Component
   const colorChangeButton = ColorChangeComponent();
   document.body.appendChild(colorChangeButton);
-
-
 }
 
 // Initialize when DOM is loaded
