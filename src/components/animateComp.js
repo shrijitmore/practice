@@ -1,21 +1,28 @@
+import { BEANS_PER_STATION } from "../utils/constants";
+
 export function ColorChangeComponent() {
-  const beans = document.querySelectorAll('.bean');
-  const beans_container = document.querySelectorAll('.beans')
+  const beans_container = document.querySelectorAll('.beans');
+  const station = document.querySelectorAll('.station');
   let currentBeanIndex = 0;
   let isColorChanging = false;
   let intervalId;
   let intervalId1;
   let count = 0;
-  let count2 = 0
+  let count2 = 0;
 
   const changeBeanColor = () => {
-    if (!isColorChanging) {
-      return;
+    const numberOfStations = station.length;
+    for (let stationIndex = 0; stationIndex < numberOfStations; stationIndex++) {
+      const beans = document.getElementsByClassName(`S${stationIndex}B${currentBeanIndex}`);
+      if (beans.length > 0) {
+        beans[0].style.backgroundColor = 'green';
+      }
     }
-    beans[currentBeanIndex].style.backgroundColor = 'green';
-    currentBeanIndex = (currentBeanIndex + 1) % beans.length;
-    if (currentBeanIndex === 0) {
+    currentBeanIndex += 1;
+
+    if (currentBeanIndex >= BEANS_PER_STATION) {
       clearInterval(intervalId);
+      clearInterval(intervalId1);
       isColorChanging = false;
     }
   };
@@ -27,7 +34,8 @@ export function ColorChangeComponent() {
         "bean3 path2 bean6"
         "bean4 path3 bean5"`,
 
-      `"bean1 path1 bean8"
+
+        `"bean1 path1 bean8"
         "bean2 cart bean7"
         "bean3 path2 bean6"
         "bean4 path3 bean5"`,
@@ -36,6 +44,7 @@ export function ColorChangeComponent() {
         "bean2 path2 bean7"
         "bean3 cart bean6"
         "bean4 path3 bean5"`,
+
 
       `"bean1 path1 bean8"
         "bean2 path2 bean7"
@@ -52,47 +61,60 @@ export function ColorChangeComponent() {
         "bean3 cart bean6"
         "bean4 path3 bean5"`,
 
+
       `"bean1 path1 bean8"
-      "bean2 cart bean7"
-      "bean3 path2 bean6"
-      "bean4 path3 bean5"` ,
+        "bean2 cart bean7"
+        "bean3 path2 bean6"
+        "bean4 path3 bean5"`,
+
 
       `"bean1 cart bean8"
         "bean2 path1 bean7"
         "bean3 path2 bean6"
         "bean4 path3 bean5"`
     ];
-    beans_container[count2].style.gridTemplateAreas = gridArea[count];
+    beans_container.forEach((container) => {
+      container.style.gridTemplateAreas = gridArea[count];
+    });
     count = (count + 1) % gridArea.length;
-    if(count == 0) { count2+=1 }
-  }
- 
+    if (count == 0) {
+      count2 += 1;
+    }
+
+    // Stop cart movement when all cycles are completed
+    if (count2 >= 1) { // Assuming 1 full cycle is the completion condition
+      clearInterval(intervalId1);
+      isColorChanging = false;
+    }
+  };
 
   const toggleColorChange = () => {
     isColorChanging = !isColorChanging;
     if (isColorChanging) {
-      intervalId1 = setInterval( moveCart, 600)
-      intervalId = setInterval(changeBeanColor, 600);
+        intervalId1 = setInterval(() => {
+            moveCart();
+            setTimeout(changeBeanColor, 1000); // Change color 2 seconds after moving the cart
+        }, 1000); // Adjust the interval time as needed
     } else {
-      clearInterval(intervalId);
-      clearInterval(intervalId1)
+        clearInterval(intervalId1);
     }
   };
 
   const resetBeanColors = () => {
-    beans.forEach(bean => {
+    const beans = document.querySelectorAll('.bean');
+    beans.forEach((bean) => {
       bean.style.backgroundColor = ''; // Reset to default color
     });
 
     currentBeanIndex = 0; // Reset index
     isColorChanging = false; // Stop color changing
     count = 0;
-    count2 = 0
+    count2 = 0;
     clearInterval(intervalId); // Clear interval if running
-    clearInterval(intervalId1)
+    clearInterval(intervalId1);
 
     // Reset the grid-template-areas to the initial state
-    beans_container.forEach(container => {
+    beans_container.forEach((container) => {
       container.style.gridTemplateAreas = `"bean1 cart bean8"
                                            "bean2 path1 bean7"
                                            "bean3 path2 bean6"
@@ -102,13 +124,13 @@ export function ColorChangeComponent() {
 
   const startButton = document.createElement('button');
   startButton.textContent = 'Start';
-  startButton.className = 'start-button'
+  startButton.className = 'start-button';
   startButton.addEventListener('click', toggleColorChange);
   document.body.appendChild(startButton);
 
   const resetButton = document.createElement('button');
   resetButton.textContent = 'Reset';
-  resetButton.className = 'reset-button'
+  resetButton.className = 'reset-button';
   resetButton.addEventListener('click', resetBeanColors);
   document.body.appendChild(resetButton);
 }

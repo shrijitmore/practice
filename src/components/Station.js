@@ -14,7 +14,7 @@ export function createStation(index) {
     // Add beans
     for (let i = 0; i < 8; i++) {
         const bean = document.createElement('div');
-        bean.className = 'bean';
+        bean.className = `bean S${index}B${i}`;
         beans.appendChild(bean);
     }
 
@@ -35,7 +35,6 @@ export function createStation(index) {
     station.appendChild(sensor);
     station.appendChild(beans);
 
-    // change the color of Beans
 
 
     return station;
