@@ -29,7 +29,7 @@ export function readExcelData(filePath) {
           const row = {};
           headers.forEach((header, index) => {
             row[header] = values[index];
-          });
+          });z
           return row;
         });
     })
