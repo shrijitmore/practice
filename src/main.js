@@ -12,9 +12,9 @@ import './styles/table.css';
 function createDataTable(container) {
   // Create a section for the table
   const tableSection = document.createElement('div');
-  tableSection.style.height = '300px'; // Set the height for the scrollable area
+  tableSection.style.height = '231px'; // Set the height for the scrollable area
   tableSection.style.width = '30%';
-  tableSection.style.overflowY = 'auto'; // Enable vertical scrolling
+  tableSection.style.overflowY = 'hidden';
   tableSection.style.border = '1px solid #ddd'; // Optional: Add a border for better visibility
   tableSection.style.marginTop = '20px'; // Optional: Add some margin
 
@@ -62,6 +62,18 @@ function createDataTable(container) {
       tableSection.appendChild(table);
       // Append the section to the container
       container.appendChild(tableSection);
+
+      // Start removing rows one by one every 2 minutes
+      let currentRowIndex = 0;
+      const interval = setInterval(() => {
+        const tbody = table.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr');
+        if (currentRowIndex < rows.length) {
+          tbody.removeChild(rows[currentRowIndex]); // Remove the current row
+        } else {
+          clearInterval(interval); // Stop the interval when all rows are removed
+        }
+      }, 1200); // 120000 milliseconds = 2 minutes
     })
     .catch(error => console.error('Error fetching the CSV file:', error));
 }
