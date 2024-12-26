@@ -1,3 +1,4 @@
+import { startCheckingAndRemovingRows } from '../main.js';
 import { BEANS_PER_STATION } from "../utils/constants";
 
 export function ColorChangeComponent() {
@@ -12,7 +13,7 @@ export function ColorChangeComponent() {
 
   const changeBeanColor = () => {
     const numberOfStations = station.length;
-    for (let stationIndex = 0; stationIndex < numberOfStations; stationIndex++) {
+    for (let stationIndex = 0; stationIndex < numberOfStations ; stationIndex++) {
       const beans = document.getElementsByClassName(`S${stationIndex}B${currentBeanIndex}`);
       if (beans.length > 0) {
         beans[0].style.backgroundColor = 'green';
@@ -21,9 +22,11 @@ export function ColorChangeComponent() {
     currentBeanIndex += 1;
 
     if (currentBeanIndex >= BEANS_PER_STATION) {
-      clearInterval(intervalId);
-      clearInterval(intervalId1);
-      isColorChanging = false;
+      resetBeanColors()
+      toggleColorChange()
+      // clearInterval(intervalId);
+      // clearInterval(intervalId1);
+      // isColorChanging = false;
     }
   };
 
@@ -125,7 +128,13 @@ export function ColorChangeComponent() {
   const startButton = document.createElement('button');
   startButton.textContent = 'Start';
   startButton.className = 'start-button';
-  startButton.addEventListener('click', toggleColorChange);
+  startButton.addEventListener('click', () => {
+    toggleColorChange();
+    const table = document.getElementById('data-table');
+    if (table) {
+      startCheckingAndRemovingRows(table);
+    }
+  });
   document.body.appendChild(startButton);
 
   const resetButton = document.createElement('button');
