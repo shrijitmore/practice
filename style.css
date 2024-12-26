@@ -6,22 +6,108 @@
 
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     background-color: #f0f0f0;
-}z
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    background-color: #007BFF;
+    color: white;
+    padding: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+}
 
 .container {
     padding: 20px;
     width: 100%;
     max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button-container {
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.conveyor-belt-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 20px;
+}
+
+.card {
+    background-color: #f9f9f9;
+    border: 2px solid #0088ff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 150px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+/* Add margin to the first card */
+.card:first-child {
+    margin-right: 10px; /* Adjust as needed */
+}
+
+/* Remove margin for the last card */
+.card:last-child {
+    margin-left: 10px; /* No margin for the last card */
+}
+
+/* Add this to your CSS file */
+.card {
+    padding: 10px; /* Add some padding for better appearance */
+    border-radius: 5px; /* Optional: Add rounded corners */
+    color: white; /* Change text color to white for better contrast */
+    position: absolute;
+    z-index: 10;
+    top: 96px;
+}
+
+.start-card {
+    background-color: green; /* Set background color for start card */
+}
+
+.end-card {
+    background-color: red; /* Set background color for end card */
+    left: 75%;
 }
 
 .conveyor-belt {
-    position: relative;
-    width: 100%;
-    padding-top: 40px;
+    flex-grow: 1;
+    height: 30px;
+    background-color: #888;
+    margin: 0 20px;
 }
 
 .belt {
@@ -51,17 +137,18 @@ body {
 }
 
 .stations {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    width: 100%;
 }
 
 .station {
-    flex: 1;
-    position: relative;
+    background-color: white;
     border: 2px solid #0088ff;
     padding: 10px;
-    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .sensor {
@@ -89,6 +176,15 @@ body {
     margin: 2px auto;
 }
 
+.footer {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
 @media (max-width: 768px) {
     .stations {
         flex-direction: column;
@@ -97,4 +193,22 @@ body {
     .station {
         margin-bottom: 20px;
     }
+}
+
+#data-table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+#data-table th, #data-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+#data-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-transform: uppercase;
 }

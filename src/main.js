@@ -1,7 +1,6 @@
 import { createStation } from './components/Station.js';
 import { createConveyorBelt } from './components/ConveyorBelt.js';
 import { STATION_COUNT } from './utils/constants.js';
-import { readExcelData } from './utils/exceldata.js';
 import { ColorChangeComponent } from './components/animateComp.js';
 import './styles/main.css';
 import './styles/conveyor.css';
@@ -52,8 +51,8 @@ export const startCheckingAndRemovingRows = (table) => {
 function createDataTable(container) {
     // Create a section for the table
     const tableSection = document.createElement('div');
-    tableSection.style.height = '231px'; // Set the height for the scrollable area
-    tableSection.style.width = '43%';
+    tableSection.style.height = '217px'; // Set the height for the scrollable area
+    tableSection.style.width = '62%';
     tableSection.style.overflowY = 'hidden';
     tableSection.style.border = '1px solid #ddd'; // Optional: Add a border for better visibility
     tableSection.style.marginTop = '20px'; // Optional: Add some margin
@@ -123,18 +122,88 @@ function createDataTable(container) {
         .catch(error => console.error('Error fetching the CSV file:', error));
 }
 
+function createCard(title) {
+    const card = document.createElement('div');
+    card.className = 'card'; // Add a class for styling
+    card.innerText = title; // Set the card title
+    return card;
+}
+
+// Function to fetch and parse the CSV data
+function fetchModelNumbers() {
+    return fetch('../data/Twin_data.csv')
+        .then(response => response.text())
+        .then(data => {
+            const rows = data.split('\n').slice(1); // Skip the header row
+            const modelNumbers = rows.map(row => {
+                const columns = row.split(',');
+                return columns[4]; // Model No. is in the 5th column (index 4)
+            }).filter(model => model); // Filter out any empty values
+            return modelNumbers;
+        })
+        .catch(error => {
+            console.error('Error fetching the CSV file:', error);
+            return [];
+        });
+}
+
+// Function to initialize the conveyor system
 function initializeConveyorSystem() {
     const container = document.querySelector('.container');
-    const conveyorBeltSystem = document.createElement('div');
 
-    conveyorBeltSystem.className = 'conveyor-belt';
+    // Clear any existing conveyor belt to prevent duplicates
+    const existingBelt = container.querySelector('.conveyor-belt');
+    if (existingBelt) {
+        existingBelt.remove(); // Remove existing conveyor belt if it exists
+    }
+
+    const conveyorBeltSystem = document.createElement('div');
+    conveyorBeltSystem.className = 'conveyor-belt-container'; // New container for cards and conveyor belt
 
     // Create and display the data table at the top
     createDataTable(container);
 
-    // Add conveyor belt
-    conveyorBeltSystem.appendChild(createConveyorBelt());
-    
+    // Create start and end cards
+    const startCard = createCard(''); // Start card
+    startCard.classList.add('start-card'); // Add class for green background
+    const endCard = createCard(''); // End card
+    endCard.classList.add('end-card'); // Add class for red background
+
+    conveyorBeltSystem.appendChild(startCard); // Append start card to the conveyor belt
+    conveyorBeltSystem.appendChild(createConveyorBelt()); // Add conveyor belt
+    conveyorBeltSystem.appendChild(endCard); // Append end card to the conveyor belt
+
+    container.appendChild(conveyorBeltSystem); // Append the conveyor belt system to the container
+
+    // Fetch model numbers and update the cards every 10 seconds
+    fetchModelNumbers().then(modelNumbers => {
+        let currentIndex = 0; // Current index for the start card
+        let previousModelNumber = ''; // Variable to hold the previous model number for the end card
+
+        // Function to update the cards with the current model number
+        const updateCards = () => {
+            if (modelNumbers.length > 0) {
+                // Update the end card with the previous model number
+                endCard.innerText = `Model Offline: ${previousModelNumber}`; // Update end card with the previous model number
+
+                // Update the start card with the current model number
+                const modelNumber = modelNumbers[currentIndex]; // Get the current model number
+                startCard.innerText = `Model Online: ${modelNumber}`; // Update start card
+
+                // Store the current model number as the previous model number for the next update
+                previousModelNumber = modelNumber;
+
+                // Move to the next model number
+                currentIndex = (currentIndex + 1) % modelNumbers.length; // Cycle through the model numbers
+            }
+        };
+
+        // Initial update
+        updateCards();
+        // Update the cards every 10 seconds (10000 milliseconds)
+        setInterval(updateCards, 10000);
+    });
+
     // Add stations container
     const stations = document.createElement('div');
     stations.className = 'stations';
@@ -144,14 +213,9 @@ function initializeConveyorSystem() {
         stations.appendChild(createStation(i));
     }
 
-    const button = document.createElement('div');
-    button.className = 'Button';
+    container.appendChild(stations);
 
-    conveyorBeltSystem.appendChild(stations);
-    container.appendChild(conveyorBeltSystem);
-
-    
-    // change the color of Component
+    // Change the color of Component
     const colorChangeButton = ColorChangeComponent();
     document.body.appendChild(colorChangeButton);
 }

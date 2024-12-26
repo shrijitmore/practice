@@ -16,9 +16,8 @@ body {
 }
 
 .container {
-    padding: 30px;
+    padding: 20px;
     width: 90%;
-
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
@@ -47,7 +46,7 @@ button:hover {
 }
 
 .reset-button {
-    left: 35%;
+    left: 22%;
 }
 
 @media (max-width: 768px) {
