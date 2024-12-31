@@ -130,16 +130,20 @@ function createCard(title) {
 }
 
 // Function to fetch and parse the CSV data
-function fetchModelNumbers() {
-    return fetch('../data/Twin_data.csv')
+function fetchProductionData() {
+    return fetch('../data/Profuction_Table.csv')
         .then(response => response.text())
         .then(data => {
             const rows = data.split('\n').slice(1); // Skip the header row
-            const modelNumbers = rows.map(row => {
+            const productionData = rows.map(row => {
                 const columns = row.split(',');
-                return columns[4]; // Model No. is in the 5th column (index 4)
-            }).filter(model => model); // Filter out any empty values
-            return modelNumbers;
+                return {
+                    timestamp: columns[1],
+                    modelOnline: columns[4],
+                    modelOffline: columns[5]
+                };
+            }).filter(item => item.modelOnline && item.modelOffline); // Filter out any empty values
+            return productionData;
         })
         .catch(error => {
             console.error('Error fetching the CSV file:', error);
@@ -157,52 +161,15 @@ function initializeConveyorSystem() {
         existingBelt.remove(); // Remove existing conveyor belt if it exists
     }
 
-    const conveyorBeltSystem = document.createElement('div');
-    conveyorBeltSystem.className = 'conveyor-belt-container'; // New container for cards and conveyor belt
+    // Create and display the conveyor belt
+    const conveyorBelt = createConveyorBelt(); // Ensure this function is called
+    container.appendChild(conveyorBelt); // Append the conveyor to the container
 
     // Create and display the data table at the top
     createDataTable(container);
 
-    // Create start and end cards
-    const startCard = createCard(''); // Start card
-    startCard.classList.add('start-card'); // Add class for green background
-    const endCard = createCard(''); // End card
-    endCard.classList.add('end-card'); // Add class for red background
-
-    conveyorBeltSystem.appendChild(startCard); // Append start card to the conveyor belt
-    conveyorBeltSystem.appendChild(createConveyorBelt()); // Add conveyor belt
-    conveyorBeltSystem.appendChild(endCard); // Append end card to the conveyor belt
-
-    container.appendChild(conveyorBeltSystem); // Append the conveyor belt system to the container
-
-    // Fetch model numbers and update the cards every 10 seconds
-    fetchModelNumbers().then(modelNumbers => {
-        let currentIndex = 0; // Current index for the start card
-        let previousModelNumber = ''; // Variable to hold the previous model number for the end card
-
-        // Function to update the cards with the current model number
-        const updateCards = () => {
-            if (modelNumbers.length > 0) {
-                // Update the end card with the previous model number
-                endCard.innerText = `Model Offline: ${previousModelNumber}`; // Update end card with the previous model number
-
-                // Update the start card with the current model number
-                const modelNumber = modelNumbers[currentIndex]; // Get the current model number
-                startCard.innerText = `Model Online: ${modelNumber}`; // Update start card
-
-                // Store the current model number as the previous model number for the next update
-                previousModelNumber = modelNumber;
-
-                // Move to the next model number
-                currentIndex = (currentIndex + 1) % modelNumbers.length; // Cycle through the model numbers
-            }
-        };
-
-        // Initial update
-        updateCards();
-        // Update the cards every 10 seconds (10000 milliseconds)
-        setInterval(updateCards, 10000);
-    });
+    // Create and display the cards
+    createCards(container);
 
     // Add stations container
     const stations = document.createElement('div');
@@ -218,6 +185,98 @@ function initializeConveyorSystem() {
     // Change the color of Component
     const colorChangeButton = ColorChangeComponent();
     document.body.appendChild(colorChangeButton);
+}
+
+// Function to create and display the cards
+function createCards(container) {
+    const startCard = document.createElement('div');
+    startCard.className = 'card start-card'; // Add class for styling
+    const endCard = document.createElement('div');
+    endCard.className = 'card end-card'; // Add class for styling
+
+    // Append cards to the container
+    container.appendChild(startCard);
+    container.appendChild(endCard);
+
+    let productionData = []; // Array to hold the fetched production data
+    let currentIndex = 0; // Index to track the current entry
+    let previousModelOnline = ''; // Variable to hold the previous value of Model Online
+    let currentRowIndex = 0;
+
+    // Function to fetch and update the production data
+    const fetchAndUpdateData = () => {
+        fetchProductionData().then(data => {
+            productionData = data; // Store the fetched data
+            if (productionData.length > 0) {
+                // Update the end card with the previous value of startCard
+                endCard.innerText = `Model Offline: ${previousModelOnline}`; // Update end card with previous value
+                
+                // Get the current model online
+                const currentModelOnline = productionData[currentIndex].modelOnline; // Store current value for next update
+                startCard.innerText = `Model Online: ${currentModelOnline}`; // Update start card
+                
+                // Only update if the model online has changed
+                if (currentModelOnline !== previousModelOnline) {
+                    previousModelOnline = currentModelOnline; // Update previous model online
+
+                    // Update the actual quantity in the table based on the new model online
+                    const tbody = document.querySelector('#data-table tbody');
+                    const rows = tbody.querySelectorAll('tr');
+
+                    // Check if the current row index is within bounds
+                    if (currentRowIndex < rows.length) {
+                        const row = rows[currentRowIndex];
+                        const modelCell = row.cells[4]; // Assuming model is in the fifth column (index 4)
+                        const actualQtyCell = row.cells[6]; // Assuming Actual qty is in the seventh column (index 6)
+                        const plannedQtyCell = row.cells[5]; // Assuming Qty/planned is in the sixth column (index 5)
+
+                        // Debugging logs to check values
+                        console.log('Current Model Online:', currentModelOnline);
+                        console.log('Model Cell Value:', modelCell ? modelCell.textContent : 'Model Cell Not Found');
+
+                        if (modelCell && modelCell.textContent.trim() === currentModelOnline.trim()) {
+                            let actualQty = parseInt(actualQtyCell.textContent, 10);
+                            actualQty += 1; // Increment Actual qty by 1
+                            actualQtyCell.textContent = actualQty; // Update the cell value
+
+                            // Debugging logs
+                            console.log('Updated Actual Quantity:', actualQty);
+                            console.log('Row:', row);
+                            console.log('Actual Qty Cell:', actualQtyCell);
+
+                            // Check if Actual qty equals Planned qty
+                            const plannedQty = parseInt(plannedQtyCell.textContent, 10);
+                            if (actualQty >= plannedQty) {
+                                row.classList.add('slide-out'); // Add slide-out class
+
+                                // Wait for the transition to complete before removing the row
+                                row.addEventListener('transitionend', () => {
+                                    tbody.removeChild(row); // Remove the current row after slide-out
+                                }, { once: true }); // Use { once: true } to ensure the event listener is removed after execution
+                            }
+                        } else {
+                            console.log('Condition not met: Model Cell does not match Current Model Online');
+                        }
+
+                        // Move to the next row for the next update
+                        currentRowIndex++;
+                    } else {
+                        // Reset the index if all rows have been processed
+                        currentRowIndex = 0;
+                    }
+                }
+
+                currentIndex = (currentIndex + 1) % productionData.length;
+            }
+        }).catch(error => {
+            console.error('Error fetching production data:', error);
+        });
+    };
+
+    // Initial fetch and update
+    fetchAndUpdateData();
+    // Set interval to fetch new data every 10 seconds
+    setInterval(fetchAndUpdateData, 10000); // 10000 milliseconds = 10 seconds
 }
 
 // Initialize when DOM is loaded

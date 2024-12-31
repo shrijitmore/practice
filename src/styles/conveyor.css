@@ -29,3 +29,30 @@
     background-color: white;
     clip-path: polygon(0 25%, 75% 25%, 75% 0%, 100% 50%, 75% 100%, 75% 75%, 0 75%);
 }
+
+@keyframes moveArrow {
+    0% {
+        transform: translateX(-20px);
+    }
+    100% {
+        transform: translateX(180px);
+    }
+}
+
+@keyframes moveEngine {
+    0% {
+        transform: translateX(0); /* Start at the beginning of the conveyor */
+    }
+    100% {
+        transform: translateX(900px); /* Move to the right end of the conveyor */
+    }
+}
+
+/* Apply the animation to the engine icon */
+.engine-icon {
+    position: absolute; /* Position it absolutely within the belt */
+    animation: moveEngine 10s linear infinite; /* Adjust duration as needed */
+    width: 50px;
+    top: 10%; /* Center vertically */
+    left: 10%;
+}

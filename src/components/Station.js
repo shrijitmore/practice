@@ -12,15 +12,16 @@ export function createStation(index) {
     beans.className = 'beans';
 
     // Add beans
-    for (let i = 0; i < 8; i++) {
+    const beanCount = index === 0 ? 5 : 7; // 5 beans for the first station, 7 for others
+    for (let i = 0; i < beanCount; i++) {
         const bean = document.createElement('div');
-        bean.className = `bean S${index}B${i}`;
+        bean.className = `bean A${index}M${i}`;
         beans.appendChild(bean);
     }
 
 
     // Add cart paths
-    ['path1', 'path2', 'path3'].forEach(pathName => {
+    ['path1', 'path2', 'path3','path4'].forEach(pathName => {
         const path = document.createElement('div');
         path.className = `cart-path ${pathName}`;
         beans.appendChild(path);

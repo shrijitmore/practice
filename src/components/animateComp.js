@@ -13,8 +13,8 @@ export function ColorChangeComponent() {
 
   const changeBeanColor = () => {
     const numberOfStations = station.length;
-    for (let stationIndex = 0; stationIndex < numberOfStations ; stationIndex++) {
-      const beans = document.getElementsByClassName(`S${stationIndex}B${currentBeanIndex}`);
+    for (let stationIndex = 0; stationIndex < numberOfStations; stationIndex++) {
+      const beans = document.getElementsByClassName(`A${stationIndex}M${currentBeanIndex}`);
       if (beans.length > 0) {
         beans[0].style.backgroundColor = 'green';
       }
@@ -22,70 +22,84 @@ export function ColorChangeComponent() {
     currentBeanIndex += 1;
 
     if (currentBeanIndex >= BEANS_PER_STATION) {
-      resetBeanColors()
-      toggleColorChange()
-      // clearInterval(intervalId);
-      // clearInterval(intervalId1);
-      // isColorChanging = false;
+      resetBeanColors();
+      toggleColorChange();
     }
   };
 
   const moveCart = () => {
     const gridArea = [
-      `"bean1 cart bean8"
-        "bean2 path1 bean7"
-        "bean3 path2 bean6"
-        "bean4 path3 bean5"`,
+      `"bean1 cart bean10"
+        "bean2 path1 bean9"
+        "bean3 path2 bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
 
+      `"bean1 path1 bean10"
+        "bean2 cart bean9"
+        "bean3 path2 bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
 
-        `"bean1 path1 bean8"
-        "bean2 cart bean7"
-        "bean3 path2 bean6"
-        "bean4 path3 bean5"`,
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 cart bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
 
-      `"bean1 path1 bean8"
-        "bean2 path2 bean7"
-        "bean3 cart bean6"
-        "bean4 path3 bean5"`,
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 path3 bean8"
+        "bean4 cart bean7"
+        "bean5 path4 bean6"`,
 
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 path3 bean8"
+        "bean4 path4 bean7"
+        "bean5 cart bean6"`,
 
-      `"bean1 path1 bean8"
-        "bean2 path2 bean7"
-        "bean3 path3 bean6"
-        "bean4 cart bean5"`,
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 path3 bean8"
+        "bean4 path4 bean7"
+        "bean5 cart bean6"`,
 
-        `"bean1 path1 bean8"
-        "bean2 path2 bean7"
-        "bean3 path3 bean6"
-        "bean4 cart bean5"`,
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 path3 bean8"
+        "bean4 cart bean7"
+        "bean5 path4 bean6"`,
 
-      `"bean1 path1 bean8"
-        "bean2 path2 bean7"
-        "bean3 cart bean6"
-        "bean4 path3 bean5"`,
+      `"bean1 path1 bean10"
+        "bean2 path2 bean9"
+        "bean3 cart bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
 
+      `"bean1 path1 bean10"
+        "bean2 cart bean9"
+        "bean3 path2 bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
 
-      `"bean1 path1 bean8"
-        "bean2 cart bean7"
-        "bean3 path2 bean6"
-        "bean4 path3 bean5"`,
-
-
-      `"bean1 cart bean8"
-        "bean2 path1 bean7"
-        "bean3 path2 bean6"
-        "bean4 path3 bean5"`
+      `"bean1 cart bean10"
+        "bean2 path1 bean9"
+        "bean3 path2 bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`,
     ];
+
     beans_container.forEach((container) => {
       container.style.gridTemplateAreas = gridArea[count];
     });
     count = (count + 1) % gridArea.length;
-    if (count == 0) {
+    if (count === 0) {
       count2 += 1;
     }
 
     // Stop cart movement when all cycles are completed
-    if (count2 >= 1) { // Assuming 1 full cycle is the completion condition
+    if (count2 >= 1) {
       clearInterval(intervalId1);
       isColorChanging = false;
     }
@@ -94,12 +108,12 @@ export function ColorChangeComponent() {
   const toggleColorChange = () => {
     isColorChanging = !isColorChanging;
     if (isColorChanging) {
-        intervalId1 = setInterval(() => {
-            moveCart();
-            setTimeout(changeBeanColor, 1000); // Change color 2 seconds after moving the cart
-        }, 1000); // Adjust the interval time as needed
+      intervalId1 = setInterval(() => {
+        moveCart();
+        setTimeout(changeBeanColor, 1000); // Change color 1 second after moving the cart
+      }, 1000); // Adjust the interval time as needed
     } else {
-        clearInterval(intervalId1);
+      clearInterval(intervalId1);
     }
   };
 
@@ -118,10 +132,11 @@ export function ColorChangeComponent() {
 
     // Reset the grid-template-areas to the initial state
     beans_container.forEach((container) => {
-      container.style.gridTemplateAreas = `"bean1 cart bean8"
-                                           "bean2 path1 bean7"
-                                           "bean3 path2 bean6"
-                                           "bean4 path3 bean5"`;
+      container.style.gridTemplateAreas = `"bean1 cart bean10"
+        "bean2 path1 bean9"
+        "bean3 path2 bean8"
+        "bean4 path3 bean7"
+        "bean5 path4 bean6"`
     });
   };
 
