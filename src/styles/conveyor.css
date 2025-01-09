@@ -10,9 +10,11 @@
     width: 100%;
     position: relative;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
+    padding: 0 20px;
     margin-bottom: 20px;
+    top: 6px;
 }
 
 .arrow {
@@ -40,19 +42,70 @@
 }
 
 @keyframes moveEngine {
-    0% {
-        transform: translateX(0); /* Start at the beginning of the conveyor */
+    0%, 20% {
+        transform: translateX(100px); /* Start position with 10s pause */
     }
-    100% {
-        transform: translateX(900px); /* Move to the right end of the conveyor */
+    30%, 50% {
+        transform: translateX(500px); /* Middle position with 10s pause */
+    }
+    60%, 80% {
+        transform: translateX(1000px); /* End position with 10s pause */
+    }              
+    90%, 100% {
+        transform: translateX(1100px); /* Back to start */
     }
 }
 
 /* Apply the animation to the engine icon */
 .engine-icon {
-    position: absolute; /* Position it absolutely within the belt */
-    animation: moveEngine 10s linear infinite; /* Adjust duration as needed */
+    position: absolute;
+    animation: moveEngine 50s linear infinite; /* Increased duration to 50s to accommodate pauses */
     width: 50px;
-    top: 10%; /* Center vertically */
-    left: 10%;
+    top: 10%;
+    left: 0;
+}
+
+.card {
+    position: absolute;
+    top: 10%;
+    /* left: 10%; */
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #0088ff;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.card-0 {
+    left: 7%;
+}
+
+.card-1 {
+    left: 43.3%;
+} 
+
+.card-2 {
+    left: 79%;
+}
+
+.arrow-0 {
+    position: absolute;
+    left: 32%;
+}
+
+.arrow-1 {
+    position: absolute;
+    left: 68%;
+}
+
+.start-card {
+    background-color: #3b8700;
+    margin-top: 16px;
+}
+
+.end-card {
+    left: 77.1%;
+    background-color: #fd4949;
+    margin-top: 16px;
 }

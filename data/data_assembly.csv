@@ -1,9 +1,0 @@
-ID,Timestamp,Model,Kit ID,Station Name,Sub-assemblies,SKU No.,Quantity per Engine,Dimensions (mm),Rack,Bin
-1,12-12-2024 9:00,M001,K001,Engine Block Assembly Station,Main bearing bolts,EB-MB-001-M1,10,M10 × 60,R1,A1-M1
-2,12-12-2024 9:01,M001,K001,,Journal cap,EB-JC-002-M1,4,60 × 40 × 20,R1,A2-M1
-3,12-12-2024 9:02,M001,K001,,Main Bearings,EB-MB-003-M1,5,50 × 30 × 10,R1,A3-M1
-4,12-12-2024 9:03,M001,K001,,Oil Channel Plugs,EB-OC-004-M1,4,20 × 20 × 20,R1,A4-M1
-5,12-12-2024 9:04,M001,K001,,Journal Bearings,EB-JB-005-M1,10,40 × 20 × 10,R1,A5-M1
-6,12-12-2024 9:05,M001,K001,,Cylinder Sleeves,EB-CS-006-M1,4,100 × 100 × 200,R1,A6-M1
-7,12-12-2024 9:06,M001,K001,,Engine Mounts,EB-EM-007-M1,2,150 × 150 × 50,R1,A7-M1
-8,12-12-2024 9:07,M001,K001,,Block Bolts and Screws,EB-BS-008-M1,8,M10 × 40,R1,A8-M1

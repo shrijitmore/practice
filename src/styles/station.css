@@ -2,6 +2,7 @@
     display: flex;
     justify-content: space-between;
     gap: 15px; /* Reduced gap for narrower stations */
+    margin-top: 22px;
 }
 
 .station {
@@ -65,3 +66,10 @@
 .path3 { grid-area: path3; }
 .path4 { grid-area: path4; }
 .cart-space { grid-area: cart; }
+
+.station-title {
+    font-size: 16px; /* Adjust the font size as needed */
+    font-weight: bold; /* Make the title bold */
+    margin-top: 10px; /* Add some space above the title */
+    text-align: center; /* Center the title */
+}

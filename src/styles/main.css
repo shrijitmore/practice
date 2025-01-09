@@ -7,7 +7,7 @@
 
 body {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     min-height: 100vh;
     background-color: #e0e0e0;
@@ -21,6 +21,7 @@ body {
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    margin-top: 0;
 }
 
 button {

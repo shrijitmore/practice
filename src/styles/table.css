@@ -3,6 +3,13 @@
     width: 30%;
     border-collapse: collapse;
     margin-top: 20px;
+    font-size: 12px;
+}
+
+#data-table caption {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 #data-table th, #data-table td {
@@ -20,12 +27,12 @@
     background-color: #f1f1f1;
 }
 .fade-out {
-    transition: opacity 0.5s ease;
+    transition: opacity 1s ease;
     opacity: 0; /* Start with opacity 0 for fade-out effect */
   }
 
   .slide-out {
-    transition: transform 0.5s ease, opacity 0.5s ease;
+    transition: transform 1s ease, opacity 1s ease;
     transform: translateX(100%); /* Move the row out of view to the right */
     opacity: 0; /* Fade out effect */
   }

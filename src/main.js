@@ -6,125 +6,48 @@ import './styles/main.css';
 import './styles/conveyor.css';
 import './styles/station.css';
 import './styles/cart.css';
-import './styles/table.css';
 
-export const startCheckingAndRemovingRows = (table) => {
-    const tbody = table.querySelector('tbody');
-    const rows = tbody.querySelectorAll('tr');
+export const startCheckingAndRemovingRows = (productionData) => {
     let currentRowIndex = 0;
 
     const interval = setInterval(() => {
-        if (currentRowIndex < rows.length) {
-            const row = rows[currentRowIndex];
-            const actualQtyCell = row.cells[6];
-            const plannedQtyCell = row.cells[5];
+        if (currentRowIndex < productionData.length) {                                                                                                    
+            const item = productionData[currentRowIndex];
+            // Process the item as needed
+            // For example, you can log or update UI based on item data
 
-            let actualQty = parseInt(actualQtyCell.textContent, 10);
-            const plannedQty = parseInt(plannedQtyCell.textContent, 10);
+            // Simulate processing
+            console.log(`Processing item: ${item.batchNo}, ${item.modelNo}`);
 
-            actualQty += 1;
-            actualQtyCell.textContent = actualQty;
-
-            if (actualQty >= plannedQty) {
-                row.classList.add('slide-out');
-                row.addEventListener('transitionend', () => {
-                    tbody.removeChild(row);
-                    currentRowIndex++;
-                }, { once: true });
-            }
+            currentRowIndex++; // Move to the next item after processing
         } else {
             clearInterval(interval);
-            currentRowIndex = 0;
         }
-    }, 3333.3);
+    }, 30000); // Check every 30 seconds
 };
 
-function createDataTable(container) {
-    const tableSection = document.createElement('div');
-    tableSection.style.height = '217px';
-    tableSection.style.width = '62%';
-    tableSection.style.overflowY = 'hidden';
-    tableSection.style.border = '1px solid #ddd';
-    tableSection.style.marginTop = '20px';
-
-    fetch('../data/Twin_data.csv')
-        .then(response => response.text())
-        .then(data => {
-            const rows = data.split('\n');
-            const tableHeader = rows[0].split(',');
-            const tableBody = rows.slice(1);
-
-            const table = document.createElement('table');
-            table.id = 'data-table';
-            table.border = '1';
-
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            tableHeader.forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-
-            const tbody = document.createElement('tbody');
-            tableBody.forEach((row, index) => {
-                if (row.trim()) {
-                    const tr = document.createElement('tr');
-                    const cells = row.split(',');
-                    cells.forEach(cell => {
-                        const td = document.createElement('td');
-                        td.textContent = cell;
-                        tr.appendChild(td);
-                    });
-                    tbody.appendChild(tr);
-                }
-            });
-            table.appendChild(tbody);
-
-            tableSection.appendChild(table);
-            container.appendChild(tableSection);
-
-            const updateFirstRowColor = () => {
-                const tbody = table.querySelector('tbody');
-                const firstRow = tbody.querySelector('tr');
-                if (firstRow) {
-                    firstRow.style.backgroundColor = 'yellow';
-                }
-            };
-
-            updateFirstRowColor();
-
-            const observer = new MutationObserver(updateFirstRowColor);
-            observer.observe(tbody, { childList: true });
-
-            // Start checking and removing rows
-            startCheckingAndRemovingRows(table);
-        })
-        .catch(error => console.error('Error fetching the CSV file:', error));
-}
-
-function createCard(title) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerText = title;
-    return card;
-}
-
 function fetchProductionData() {
-    return fetch('../data/Profuction_Table.csv')
+    return fetch('../data/Production_Table.csv')
         .then(response => response.text())
         .then(data => {
-            const rows = data.split('\n').slice(1);
-            const productionData = rows.map(row => {
+            const rows = data.split('\n').map(row => row.trim()).filter(row => row.length > 0); // Remove empty rows
+            const productionData = rows.slice(1).map(row => { // Skip the header row
                 const columns = row.split(',');
                 return {
-                    timestamp: columns[1],
-                    modelOnline: columns[4],
-                    modelOffline: columns[5]
+                    srNo: columns[0] ? columns[0].trim() : null,
+                    shift: columns[1] ? columns[1].trim() : null,
+                    batchNo: columns[2] ? columns[2].trim() : null,
+                    timestampModelOnline: columns[3] ? columns[3].trim() : null,
+                    modelOnline: columns[4] ? columns[4].trim() : null,
+                    timestampStation1: columns[5] ? columns[5].trim() : null,
+                    station1Offline: columns[6] ? columns[6].trim() : null,
+                    timestampStation2: columns[7] ? columns[7].trim() : null,
+                    station2Offline: columns[8] ? columns[8].trim() : null,
+                    timestampStation3: columns[9] ? columns[9].trim() : null,
+                    station3Offline: columns[10] ? columns[10].trim() : null
                 };
-            }).filter(item => item.modelOnline && item.modelOffline);
+            });
+
             return productionData;
         })
         .catch(error => {
@@ -141,24 +64,55 @@ function initializeConveyorSystem() {
         existingBelt.remove();
     }
 
-    const conveyorBelt = createConveyorBelt();
-    container.appendChild(conveyorBelt);
+    // Fetch production data to get the current model online
+    fetchProductionData().then(productionData => {
+        const currentModelOnline = productionData.length > 0 ? productionData[0].modelOnline : null;
+        console.log('Current Model Online:', currentModelOnline);
+        const conveyorBelt = createConveyorBelt(currentModelOnline);
+        container.appendChild(conveyorBelt);
 
-    createDataTable(container);
+        const stations = document.createElement('div');
+        stations.className = 'stations';
+        createCards(container);
+        
+        for (let i = 0; i < STATION_COUNT; i++) {
+            const station = createStation(i);
+            stations.appendChild(station);
+        }
 
-    createCards(container);
+        container.appendChild(stations);
 
-    const stations = document.createElement('div');
-    stations.className = 'stations';
+        const colorChangeButton = ColorChangeComponent();
+        document.body.appendChild(colorChangeButton);
+
+        // Start checking and removing rows
+        startCheckingAndRemovingRows(productionData);
+    }).catch(error => {
+        console.error('Error fetching production data:', error);
+    });
+}
+
+function updateTableQuantity(modelOffline, tableIndex) {
+    console.log('Updating quantity for model:', modelOffline);
+    const table = document.querySelectorAll('.station-table')[tableIndex];
     
-    for (let i = 0; i < STATION_COUNT; i++) {
-        stations.appendChild(createStation(i));
+    if (table) {
+        const rows = table.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+            const modelCell = row.cells[0];
+            const qtyCell = row.cells[1];
+            
+            if (modelCell && qtyCell) {
+                console.log('Checking row:', modelCell.textContent, 'against:', modelOffline);
+                if (modelCell.textContent === modelOffline) {
+                    const currentQty = parseInt(qtyCell.textContent) || 0;
+                    console.log('Updating quantity from', currentQty, 'to', currentQty + 1);
+                    qtyCell.textContent = currentQty + 1;
+                }
+            }
+        });
     }
-
-    container.appendChild(stations);
-
-    const colorChangeButton = ColorChangeComponent();
-    document.body.appendChild(colorChangeButton);
 }
 
 function createCards(container) {
@@ -172,30 +126,73 @@ function createCards(container) {
 
     let productionData = [];
     let currentIndex = 0;
-    let previousModelOnline = '';
 
-    const fetchAndUpdateData = () => {
-        fetchProductionData().then(data => {
-            productionData = data;
-            if (productionData.length > 0) {
-                endCard.innerText = `Model Offline: ${previousModelOnline}`;
-                
-                const currentModelOnline = productionData[currentIndex].modelOnline;
-                startCard.innerText = `Model Online: ${currentModelOnline}`;
-                
-                if (currentModelOnline !== previousModelOnline) {
-                    previousModelOnline = currentModelOnline;
+    const resetTableQuantities = () => {
+        console.log('Resetting table quantities...');
+        const tables = document.querySelectorAll('.station-table');
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tr');
+            rows.forEach((row, rowIndex) => {
+                if (rowIndex === 0) return; // Skip the header row
+                const qtyCell = row.cells[1];
+                if (qtyCell) {
+                    qtyCell.textContent = '0';
                 }
-
-                currentIndex = (currentIndex + 1) % productionData.length;
-            }
-        }).catch(error => {
-            console.error('Error fetching production data:', error);
+            });
         });
     };
 
-    fetchAndUpdateData();
-    setInterval(fetchAndUpdateData, 3333.3);
+    const processRow = (index) => {
+        if (index >= productionData.length) {
+            console.log('All rows processed. Resetting and starting over.');
+            resetTableQuantities(); // Reset quantities after processing all rows
+            currentIndex = 0; // Reset index to start from the beginning
+            setTimeout(() => processRow(currentIndex), 1000); // Start processing from the beginning after a short delay
+            return;
+        }
+
+        const currentItem = productionData[index];
+        const { modelOnline, station1Offline, station2Offline, station3Offline } = currentItem;
+
+        console.log(`Processing row ${index + 1}: Model Online - ${modelOnline}`);
+
+        // Update Model Online card
+        startCard.innerText = `Model Online: ${modelOnline}`;
+
+        // Update Station 1
+        setTimeout(() => {
+            console.log(`Updating Station 1 for model: ${station1Offline}`);
+            updateTableQuantity(station1Offline, 0);
+        }, 10000); // 10 seconds delay for station 1
+
+        // Update Station 2
+        setTimeout(() => {
+            console.log(`Updating Station 2 for model: ${station2Offline}`);
+            updateTableQuantity(station2Offline, 1);
+        }, 20000); // 20 seconds delay for station 2
+
+        // Update Station 3 and Model Offline card
+        setTimeout(() => {
+            console.log(`Updating Station 3 for model: ${station3Offline}`);
+            updateTableQuantity(station3Offline, 2);
+            endCard.innerText = `Model Offline: ${station3Offline}`;
+
+            // Move to the next row after processing Station 3
+            processRow(index + 1);
+        }, 30000); // 30 seconds delay for station 3
+    };
+
+    fetchProductionData().then(data => {
+        productionData = data;
+        if (productionData.length > 0) {
+            console.log('Starting processing of production data...');
+            processRow(currentIndex);
+        } else {
+            console.error('No production data available.');
+        }
+    }).catch(error => {
+        console.error('Error fetching production data:', error);
+    });
 }
 
 document.addEventListener('DOMContentLoaded', initializeConveyorSystem);

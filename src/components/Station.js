@@ -1,5 +1,10 @@
 import { createCart } from './Cart.js';
 
+async function loadPlanningData() {
+    // Hardcoded unique models since we're using sample data
+    return ['M001', 'M002', 'M003'];
+}
+
 export function createStation(index) {
     const station = document.createElement('div');
     station.className = 'station';
@@ -12,31 +17,70 @@ export function createStation(index) {
     beans.className = 'beans';
 
     // Add beans
-    const beanCount = index === 0 ? 5 : 7; // 5 beans for the first station, 7 for others
+    const beanCount = index === 0 ? 5 : 7;
     for (let i = 0; i < beanCount; i++) {
         const bean = document.createElement('div');
         bean.className = `bean A${index}M${i}`;
         beans.appendChild(bean);
     }
 
-
     // Add cart paths
-    ['path1', 'path2', 'path3','path4'].forEach(pathName => {
+    ['path1', 'path2', 'path3', 'path4'].forEach(pathName => {
         const path = document.createElement('div');
         path.className = `cart-path ${pathName}`;
         beans.appendChild(path);
     });
 
-    // Add cart space with cart for all stations
+    // Add cart space with cart
     const cartSpace = document.createElement('div');
     cartSpace.className = 'cart-space';
     cartSpace.appendChild(createCart(index));
     beans.appendChild(cartSpace);
 
+    // Define station names
+    const stationNames = [
+        'Rotor Assembly',
+        'End Plate Assembly',
+        'Impeller Assembly'
+    ];
+
+    // Create title
+    const title = document.createElement('h3');
+    title.textContent = stationNames[index] || `Station ${index + 1}`;
+    title.className = 'station-title';
+    title.style.textAlign = 'center';
+
+    // Create table
+    const table = document.createElement('table');
+    table.className = 'station-table';
+    table.style.border = '1px solid black';
+    table.style.borderCollapse = 'collapse';
+    table.style.width = '167px';
+    table.style.margin = '0 auto';
+
+    // Add header
+    const tableHeader = document.createElement('tr');
+    tableHeader.innerHTML = `
+        <th style="border: 1px solid black; text-align: center;">Model No</th>
+        <th style="border: 1px solid black; text-align: center;">Qty</th>
+    `;
+    table.appendChild(tableHeader);
+
+    // Create rows for each model
+    const models = ['M001', 'M002', 'M003'];
+    models.forEach(model => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="border: 1px solid black; text-align: center;">${model}</td>
+            <td style="border: 1px solid black; text-align: center;">0</td>
+        `;
+        table.appendChild(row);
+    });
+
+    station.appendChild(title);
     station.appendChild(sensor);
     station.appendChild(beans);
-
-
+    station.appendChild(table);
 
     return station;
 }
