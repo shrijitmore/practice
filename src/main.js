@@ -126,67 +126,62 @@ function createCards(container) {
 
     let productionData = [];
     let currentIndex = 0;
+    let currentModel = null;
+    let station1Model = null;
+    let station2Model = null;
+    let station3Model = null;
 
-    const resetTableQuantities = () => {
-        console.log('Resetting table quantities...');
-        const tables = document.querySelectorAll('.station-table');
-        tables.forEach(table => {
-            const rows = table.querySelectorAll('tr');
-            rows.forEach((row, rowIndex) => {
-                if (rowIndex === 0) return; // Skip the header row
-                const qtyCell = row.cells[1];
-                if (qtyCell) {
-                    qtyCell.textContent = '0';
-                }
-            });
-        });
-    };
-
-    const processRow = (index) => {
-        if (index >= productionData.length) {
-            console.log('All rows processed. Resetting and starting over.');
-            resetTableQuantities(); // Reset quantities after processing all rows
-            currentIndex = 0; // Reset index to start from the beginning
-            setTimeout(() => processRow(currentIndex), 1000); // Start processing from the beginning after a short delay
-            return;
+    const updateSystem = () => {
+        // Immediately update Model Online card
+        if (currentIndex < productionData.length) {
+            currentModel = productionData[currentIndex].modelOnline;
+            console.log('New model read:', currentModel);
+            startCard.innerText = `Model Online: ${currentModel}`;
         }
 
-        const currentItem = productionData[index];
-        const { modelOnline, station1Offline, station2Offline, station3Offline } = currentItem;
-
-        console.log(`Processing row ${index + 1}: Model Online - ${modelOnline}`);
-
-        // Update Model Online card
-        startCard.innerText = `Model Online: ${modelOnline}`;
-
-        // Update Station 1
+        // Wait 10 seconds before updating stations
         setTimeout(() => {
-            console.log(`Updating Station 1 for model: ${station1Offline}`);
-            updateTableQuantity(station1Offline, 0);
-        }, 10000); // 10 seconds delay for station 1
+            if (currentIndex < productionData.length) {
+                // Move models through stations
+                if (station2Model) {
+                    station3Model = station2Model;
+                    updateTableQuantity(station3Model, 2);
+                    endCard.innerText = `Model Offline: ${station3Model}`;
+                }
+                
+                if (station1Model) {
+                    station2Model = station1Model;
+                    updateTableQuantity(station2Model, 1);
+                }
+                
+                if (currentModel) {
+                    station1Model = currentModel;
+                    updateTableQuantity(station1Model, 0);
+                }
 
-        // Update Station 2
-        setTimeout(() => {
-            console.log(`Updating Station 2 for model: ${station2Offline}`);
-            updateTableQuantity(station2Offline, 1);
-        }, 20000); // 20 seconds delay for station 2
-
-        // Update Station 3 and Model Offline card
-        setTimeout(() => {
-            console.log(`Updating Station 3 for model: ${station3Offline}`);
-            updateTableQuantity(station3Offline, 2);
-            endCard.innerText = `Model Offline: ${station3Offline}`;
-
-            // Move to the next row after processing Station 3
-            processRow(index + 1);
-        }, 30000); // 30 seconds delay for station 3
+                currentIndex++;
+                
+                // Schedule next model reading
+                setTimeout(updateSystem, 0); // Immediately read next model
+            } else {
+                // Reset when all rows are processed
+                console.log('Resetting to start...');
+                currentIndex = 0;
+                station1Model = null;
+                station2Model = null;
+                station3Model = null;
+                resetTableQuantities();
+                setTimeout(updateSystem, 0); // Restart the cycle
+            }
+        }, 10000); // 10-second delay for station updates
     };
 
+    // Start the system after fetching data
     fetchProductionData().then(data => {
         productionData = data;
         if (productionData.length > 0) {
             console.log('Starting processing of production data...');
-            processRow(currentIndex);
+            updateSystem();
         } else {
             console.error('No production data available.');
         }
